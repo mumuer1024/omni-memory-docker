@@ -16,7 +16,7 @@
 ```bash
 docker run -d \
   --name omni-memory \
-  -p 8081:8080 \
+  -p 8080:8080 \
   -v /你的路径/config:/app/config \
   -v /你的路径/data:/app/data \
   ghcr.io/mumuer1024/omni-memory:latest
