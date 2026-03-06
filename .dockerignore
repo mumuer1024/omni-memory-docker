@@ -1,0 +1,6 @@
+.git
+.github
+.gitmodules
+src/.git
+__pycache__
+*.pyc
