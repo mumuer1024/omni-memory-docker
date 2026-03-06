@@ -1,0 +1,56 @@
+name: Auto Update Submodule and Build Image
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天美西时间午夜执行一次
+  workflow_dispatch:      # 允许你在 GitHub 页面手动点击按钮触发更新
+
+jobs:
+  update-and-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          # 使用你之前生成的 PAT 或默认 TOKEN
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Submodule
+        id: check_update
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          
+          # 尝试更新子模块并检查是否有代码变动
+          git submodule update --remote --recursive
+          
+          if [[ -n $(git status -s) ]]; then
+            git add .
+            git commit -m "chore: auto-update submodule to latest"
+            git push
+            echo "updated=true" >> $GITHUB_OUTPUT
+          else
+            echo "updated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log in to GHCR
+        if: steps.check_update.outputs.updated == 'true' || github.event_name == 'workflow_dispatch'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        if: steps.check_update.outputs.updated == 'true' || github.event_name == 'workflow_dispatch'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # 这里的标签就是你以后在 1Panel 里使用的镜像名
+          tags: ghcr.io/${{ github.repository }}:latest
