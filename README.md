@@ -1,51 +1,53 @@
-
 # Omni Memory Docker 🚀
 
-这是一个为 [Omni Memory](https://github.com/original-author/omni-memory) (原作者项目) 打造的 Docker 化部署方案。
+English | [中文](README_zh.md)
 
-## 💡 项目初衷
-LLM 的长期记忆是构建 AI 助手或进行长篇创作（如视觉小说）的核心。原项目功能强大，但缺乏开箱即用的 Docker 支持。本项目旨在：
-- **简化部署**：通过 Docker 一键启动，无需理会复杂的 Python 环境配置。
-- **自动同步**：通过 GitHub Actions 监控原作者代码，保持 **每日自动同步构建**（延迟 ≤ 1天），确保你永远使用的是最新功能。
-- **物理隔离**：支持多实例部署（如日常助手与专业创作互不干扰）。
+A Dockerized deployment solution for [Omni Memory](https://github.com/original-author/omni-memory).
+
+## 💡 Why This Project?
+
+Long-term memory for LLMs is essential for building AI assistants or long-form creative work (e.g. visual novels). The original project is powerful but lacks out-of-the-box Docker support. This project aims to:
+
+- **Simplify deployment** — One-command Docker startup, no Python environment headaches.
+- **Auto-sync** — GitHub Actions monitors the upstream repo and triggers **daily automated builds** (delay ≤ 1 day), so you always run the latest features.
+- **Instance isolation** — Supports multi-instance deployment (e.g. daily assistant vs. creative writing, fully independent).
 
 ---
 
-## 🛠️ 部署指南 (小白保姆级)
+## 🛠️ Deployment Guide
 
-### 1. 准备目录结构
-为了确保数据持久化，请先在宿主机（如 VPS 或 NAS）创建以下目录。我用的是VPS，以下是我的示例路径：
+### 1. Create Directory Structure
+
+For data persistence, create the following directories on your host (VPS, NAS, etc.):
 
 ```bash
 mkdir -p /opt/1panel/docker/compose/omni-memory-docker/main/{config,data}
-
 ```
 
-### 2. 获取配置文件模板
+### 2. Configuration Files
 
-你需要手动创建两个核心配置文件。
+You need to manually create two core config files.
 
-#### A. endpoints.json (配置你的 API)
+#### A. endpoints.json (API Configuration)
 
-在 `config` 目录下创建 `endpoints.json`，填入你的 API 信息：
+Create `endpoints.json` inside the `config` directory with your API info:
 
 ```json
 [
   {
     "name": "your-provider",
-    "url": "[https://api.example.com/v1](https://api.example.com/v1)",
+    "url": "https://api.example.com/v1",
     "api_key": "sk-your-key",
     "provider": "openai",
     "models": ["model-name"],
     "enabled": true
   }
 ]
-
 ```
 
-#### B. memory_settings.json (配置记忆逻辑)
+#### B. memory_settings.json (Memory Logic)
 
-在同一目录下创建 `memory_settings.json`：
+Create `memory_settings.json` in the same directory:
 
 ```json
 {
@@ -55,12 +57,11 @@ mkdir -p /opt/1panel/docker/compose/omni-memory-docker/main/{config,data}
   "summary_interval": 5,
   "rag_max_memories": 10
 }
-
 ```
 
-### 3. 使用 Docker Compose 部署
+### 3. Deploy with Docker Compose
 
-创建 `docker-compose.yml` 文件：
+Create a `docker-compose.yml` file:
 
 ```yaml
 services:
@@ -71,44 +72,42 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - /你的路径/config:/app/config
-      - /你的路径/data:/app/data
+      - /your/path/config:/app/config
+      - /your/path/data:/app/data
     environment:
-      - TZ=America/Los_Angeles # 请根据你的位置修改时区
-
+      - TZ=America/Los_Angeles # Adjust to your timezone
 ```
 
-运行启动命令：
+Start the service:
 
 ```bash
 docker compose up -d
-
 ```
 
 ---
 
-## 🚀 进阶：多实例部署
+## 🚀 Advanced: Multi-Instance Deployment
 
-如果你需要为不同场景（如创作、日常助手）设置独立的记忆库，只需复制上述目录并更改宿主机端口映射即可。例如：
+To set up independent memory stores for different scenarios (e.g. creative writing, daily assistant), simply duplicate the directory and change the host port mapping. For example:
 
-* 实例 A (日常): 端口 8081 -> 挂载到 `/path/to/main`
-* 实例 B (创作): 端口 8082 -> 挂载到 `/path/to/project`
-
----
-
-## 🔄 自动化与更新
-
-本项目通过 GitHub Actions 实现 **子模块自动监测**。
-
-* **自动更新频率**：每 24 小时检查一次原仓库变动。
-* **镜像拉取**：当你需要升级时，只需在本地运行 `docker compose pull && docker compose up -d` 即可无损升级。
+- Instance A (Daily): port 8081 → mounted to `/path/to/main`
+- Instance B (Creative): port 8082 → mounted to `/path/to/project`
 
 ---
 
-## ⚖️ 开源协议
+## 🔄 Automation & Updates
 
-本项目采用 [Apache License 2.0](https://www.google.com/search?q=LICENSE) 协议，与原项目保持一致。
+This project uses GitHub Actions for **automated submodule monitoring**.
 
-## 🤝 致谢
+- **Auto-update frequency**: Checks upstream changes every 24 hours.
+- **Image pull**: To upgrade, simply run `docker compose pull && docker compose up -d` for a seamless update.
 
-感谢原作者对 LLM 记忆能力的卓越探索。
+---
+
+## ⚖️ License
+
+This project is licensed under the [Apache License 2.0](LICENSE), consistent with the upstream project.
+
+## 🤝 Acknowledgements
+
+Thanks to the original author for their excellent exploration of LLM memory capabilities.
